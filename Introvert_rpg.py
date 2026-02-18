@@ -203,8 +203,11 @@ class InteractionContext:
 class IntrovertRPG:
     """Main game engine"""
     
-    def __init__(self, api_key: str):
-        self.client = anthropic.Anthropic(api_key=api_key)
+    def __init__(self, api_key: str = None):
+        if api_key:
+            self.client = anthropic.Anthropic(api_key=api_key)
+        else:
+            self.client = anthropic.Anthropic()  # Uses ANTHROPIC_AUTH_TOKEN from env
         self.player: Optional[CharacterStats] = None
         self.current_interaction: Optional[InteractionContext] = None
         self.conversation_history: List[Dict] = []
@@ -829,10 +832,11 @@ def main():
     
     # Initialize game
     api_key = os.getenv("ANTHROPIC_API_KEY")
-    if not api_key:
-        print("Please set ANTHROPIC_API_KEY environment variable")
+    auth_token = os.getenv("ANTHROPIC_AUTH_TOKEN")
+    if not api_key and not auth_token:
+        print("Please set ANTHROPIC_API_KEY or ANTHROPIC_AUTH_TOKEN environment variable")
         return
-    
+
     game = IntrovertRPG(api_key)
     
     # Create character
